@@ -1,0 +1,91 @@
+#VRML V2.0 utf8
+# Simon Krämer 25871
+# Pippijn van Steenhoven 25878
+
+Inline {
+	url "mickey-static.wrl"
+}
+
+Background {
+	skyColor [ 0.95 0.84 0.26 ]
+	frontUrl "parts/mickey-background2.png"
+}
+
+
+# Linkes Auge
+DEF BALL Transform {
+	scale 0.65 0.45 0.2
+	scaleOrientation 0 0 1 0
+	center 0 0 0
+	rotation 1 1 0.5 -0.4
+	translation -0.5 0.3 1.8
+	bboxCenter 0 0 0
+	bboxSize -1 -1 -1
+	children [
+		DEF WhiteSphere Shape {
+			appearance Appearance {
+				material Material {
+					diffuseColor 0.9 0.6 0.3
+					emissiveColor 0.1 0.1 0.1
+				}
+			}
+			geometry Sphere {
+				radius 1.0
+			}
+		}
+	]
+}
+
+# Rechtes Auge
+Transform {
+	scale 0.65 0.45 0.2
+	scaleOrientation 0 0 1 0
+	center 0 0 0
+	rotation 1 -1 -0.5 -0.4
+	translation 0.5 0.3 1.8
+	bboxCenter 0 0 0
+	bboxSize -1 -1 -1
+	children [
+		USE WhiteSphere
+	]
+}
+
+# Linke Pupille
+Transform {
+	scale 0.05 0.05 0.02
+	scaleOrientation 0 0 1 0
+	center 0 0 0
+	rotation 1 0.5 0 -0.15
+	translation -0.32 0.2 2.1
+	bboxCenter 0 0 0
+	bboxSize -1 -1 -1
+	children [
+		DEF BlackSphere Shape {
+			appearance Appearance {
+				material Material {
+					diffuseColor 0 0 0
+				}
+			}
+			geometry Sphere {
+				radius 2.0
+			}
+		}
+	]
+}
+
+# Rechte Pupille
+Transform {
+	scale 0.05 0.05 0.02
+	scaleOrientation 0 0 1 0
+	center 0 0 0
+	rotation 1 -0.5 0 -0.15
+	translation 0.32 0.2 2.1
+	bboxCenter 0 0 0
+	bboxSize -1 -1 -1
+	children [
+		USE BlackSphere
+	]
+}
+
+
+# vim:noexpandtab

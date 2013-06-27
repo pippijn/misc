@@ -1,0 +1,119 @@
+#VRML V2.0 utf8
+# Simon Krämer 25871
+# Pippijn van Steenhoven 25878
+
+# Beine
+DEF Leg Group {
+	children [
+		# Oberschenkel
+		Transform {
+			rotation 0 0 0 0
+			translation 0.9 -5.5 0
+			scale 1 1 1
+			children [
+				Shape {
+					appearance Appearance {
+						material Material {
+							diffuseColor 0 0 0
+							emissiveColor 0 0 0
+						}
+					}
+					geometry Cylinder {
+						radius 0.2
+						height 1.5
+					}
+				}
+			]
+		}
+		# Knie
+		Transform {
+			rotation 0 0 0 0
+			translation 0.9 -6.272 0
+			scale 1 1 1
+			children [
+				Shape {
+					appearance Appearance {
+						material Material {
+							diffuseColor 0 0 0
+							emissiveColor 0 0 0
+						}
+					}
+					geometry Sphere {
+						radius 0.2
+					}
+				}
+			]
+		}
+		# Unterschenkel
+		Transform {
+			rotation 0 0 0 0
+			translation 0.9 -6.8 0
+			scale 1 1 1
+			children [
+				Shape {
+					appearance Appearance {
+						material Material {
+							diffuseColor 0 0 0
+							emissiveColor 0 0 0
+						}
+					}
+					geometry Cylinder {
+						radius 0.2
+						height 0.9
+					}
+				}
+			]
+		}
+		Group {
+			children [
+				# Schuh
+				Transform {
+					rotation 0 0 0 0
+					translation 0.9 -7.5 0.3
+					scale 0.8 0.5 1
+					children [
+						Shape {
+							appearance Appearance {
+								material Material {
+									diffuseColor 0.97 0.75 0.07
+									emissiveColor 0.1 0.1 0.1
+								}
+							}
+							geometry Sphere {
+								radius 1
+							}
+						}
+					]
+				}
+				# Schuhring
+				Transform {
+					rotation 0 0 0 0
+					translation 0.9 -6.93 0
+					scale 1 0.4 1
+					children [
+						Shape {
+							appearance Appearance {
+								material Material {
+									diffuseColor 0.97 0.75 0.07
+									emissiveColor 0.1 0.1 0.1
+								}
+							}
+							geometry Sphere {
+								radius 0.4
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}
+
+Transform {
+	rotation 0 0 0 0
+	translation -1.8 0 0
+	scale 1 1 1
+	children [
+		USE Leg
+	]
+}

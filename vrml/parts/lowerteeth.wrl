@@ -1,0 +1,77 @@
+#VRML V2.0 utf8
+# Simon Krämer 25871
+# Pippijn van Steenhoven 25878
+
+DEF RightLowerTeeth Group {
+	children [
+		Transform {
+			rotation 0 0 1 0.1
+			translation 0.1 -1.43 1.6
+			children [
+				DEF Tooth Shape {
+					appearance Appearance {
+						material DEF EyeMaterial Material {
+							diffuseColor 1 1 1
+							emissiveColor 0.3 0.3 0.3
+						}
+					}
+					geometry Cone {
+						bottomRadius 0.07
+						height 0.25
+						side TRUE
+						bottom TRUE 
+					}
+				}
+			]
+		}
+		Transform {
+			rotation 0 0 1 0.2
+			translation 0.3 -1.39 1.6
+			children [
+				USE Tooth
+			]
+		}
+		Transform {
+			rotation 0 0 1 0.45
+			translation 0.52 -1.29 1.6
+			children [
+				USE Tooth
+			]
+		}
+		Transform {
+			scale 0.7 0.7 0.7
+			rotation 0 0 1 0.7
+			translation 0.69 -1.17 1.6
+			children [
+				USE Tooth
+			]
+		}
+		Transform {
+			scale 0.55 0.55 0.55
+			rotation 0 0 1 0.9
+			translation 0.80 -1.07 1.6
+			children [
+				USE Tooth
+			]
+		}
+		Transform {
+			scale 0.45 0.45 0.45
+			rotation 0 0 1 0.95
+			translation 0.85 -0.99 1.6
+			children [
+				USE Tooth
+			]
+		}
+	]
+}
+
+Transform {
+	rotation 0 1 0 3.14
+	translation 0 0 3.2
+	children [
+		USE RightLowerTeeth
+	]
+}
+
+
+# vim:noexpandtab

@@ -1,0 +1,362 @@
+#VRML V2.0 utf8
+# Simon Krämer 25871
+# Pippijn van Steenhoven 25878
+
+Inline {
+	url "mickey-static.wrl"
+}
+
+Background {
+	skyColor [ 0.95 0.84 0.26 ]
+	frontUrl "mickey-background2.png"
+}
+
+
+DEF FaceTimer TimeSensor {
+	cycleInterval 4
+	loop TRUE
+}
+
+# Linkes Auge
+Group {
+	children [
+		DEF LeftEyeTransform Transform {
+			children [
+				DEF Eye Shape {
+					appearance Appearance {
+						material DEF EyeMaterial Material {
+							diffuseColor 1 1 1
+							emissiveColor 0.3 0.3 0.3
+						}
+					}
+						geometry Sphere {
+						radius 1.0
+					}
+				}
+			]
+		}
+		DEF EyeColorInterpolator ColorInterpolator {
+			key [
+				0
+				0.4
+				0.6
+				1
+			]
+			keyValue [
+				1 1 1,
+				0.9 0.3 0.1,
+				0.9 0.3 0.1,
+				1 1 1
+			]
+		}
+		DEF LeftEyeTranslationInterpolator PositionInterpolator {
+			key [
+				0
+				0.4
+				0.6
+				1
+			]
+			keyValue [
+				-0.5 0.6 1.67,
+				-0.5 0.3 1.8,
+				-0.5 0.3 1.8,
+				-0.5 0.6 1.67
+			]
+		}
+		DEF LeftEyeRotationInterpolator OrientationInterpolator {
+			key [
+				0
+				0.4
+				0.6
+				1
+			]
+			keyValue [
+				1 1 0 -0.4,
+				1 1 0.5 -0.4,
+				1 1 0.5 -0.4,
+				1 1 0 -0.4
+			]
+		}
+		DEF LeftEyeScaleInterpolator PositionInterpolator {
+			key [
+				0
+				0.4
+				0.6
+				1
+			]
+			keyValue [
+				0.65 0.9 0.2,
+				0.65 0.45 0.2,
+				0.65 0.45 0.2,
+				0.65 0.9 0.2
+			]
+		}
+	]
+}
+
+ROUTE FaceTimer.fraction_changed TO EyeColorInterpolator.set_fraction
+ROUTE EyeColorInterpolator.value_changed TO EyeMaterial.set_diffuseColor
+
+
+ROUTE FaceTimer.fraction_changed TO LeftEyeTranslationInterpolator.set_fraction
+ROUTE LeftEyeTranslationInterpolator.value_changed TO LeftEyeTransform.translation
+
+ROUTE FaceTimer.fraction_changed TO LeftEyeRotationInterpolator.set_fraction
+ROUTE LeftEyeRotationInterpolator.value_changed TO LeftEyeTransform.rotation
+
+ROUTE FaceTimer.fraction_changed TO LeftEyeScaleInterpolator.set_fraction
+ROUTE LeftEyeScaleInterpolator.value_changed TO LeftEyeTransform.scale
+
+# Rechtes Auge
+Group {
+	children [
+		DEF RightEyeTransform Transform {
+			children [
+				USE Eye
+			]
+		}
+		DEF RightEyeTranslationInterpolator PositionInterpolator {
+			key [
+				0
+				0.4
+				0.6
+				1
+			]
+			keyValue [
+				0.5 0.6 1.67,
+				0.5 0.3 1.8,
+				0.5 0.3 1.8,
+				0.5 0.6 1.67
+			]
+		}
+		DEF RightEyeRotationInterpolator OrientationInterpolator {
+			key [
+				0
+				0.4
+				0.6
+				1
+			]
+			keyValue [
+				1 -1 0 -0.4,
+				1 -1 -0.5 -0.4,
+				1 -1 -0.5 -0.4,
+				1 -1 0 -0.4
+			]
+		}
+		DEF RightEyeScaleInterpolator PositionInterpolator {
+			key [
+				0
+				0.4
+				0.6
+				1
+			]
+			keyValue [
+				0.65 0.9 0.2,
+				0.65 0.45 0.2,
+				0.65 0.45 0.2,
+				0.65 0.9 0.2
+			]
+		}
+	]
+}
+
+ROUTE FaceTimer.fraction_changed TO RightEyeTranslationInterpolator.set_fraction
+ROUTE RightEyeTranslationInterpolator.value_changed TO RightEyeTransform.translation
+
+ROUTE FaceTimer.fraction_changed TO RightEyeRotationInterpolator.set_fraction
+ROUTE RightEyeRotationInterpolator.value_changed TO RightEyeTransform.rotation
+
+ROUTE FaceTimer.fraction_changed TO RightEyeScaleInterpolator.set_fraction
+ROUTE RightEyeScaleInterpolator.value_changed TO RightEyeTransform.scale
+
+# Linke Pupille
+Group {
+	children [
+		DEF LeftPupilTransform Transform {
+			rotation 1 0.5 0 -0.15
+			children [
+				DEF Pupil Shape {
+					appearance Appearance {
+						material DEF PupilMaterial Material {
+							diffuseColor 0 0 0
+						}
+					}
+					geometry Sphere {
+						radius 2.0
+					}
+				}
+			]
+		}
+		DEF PupilColorInterpolator ColorInterpolator {
+			key [
+				0
+				0.4
+				0.6
+				1
+			]
+			keyValue [
+				0 0 0,
+				1 0 0,
+				1 0 0,
+				0 0 0
+			]
+		}
+		DEF LeftPupilTranslationInterpolator PositionInterpolator {
+			key [
+				0
+				0.4
+				0.6
+				1
+			]
+			keyValue [
+				-0.32 0.2 2.0,
+				-0.32 0.2 2.1,
+				-0.32 0.2 2.1,
+				-0.32 0.2 2.0
+			]
+		}
+		DEF LeftPupilScaleInterpolator PositionInterpolator {
+			key [
+				0
+				0.4
+				0.6
+				1
+			]
+			keyValue [
+				0.1 0.2 0.02,
+				0.05 0.05 0.02,
+				0.05 0.05 0.02,
+				0.1 0.2 0.02
+			]
+		}
+	]
+}
+
+ROUTE FaceTimer.fraction_changed TO PupilColorInterpolator.set_fraction
+ROUTE PupilColorInterpolator.value_changed TO PupilMaterial.set_diffuseColor
+
+
+ROUTE FaceTimer.fraction_changed TO LeftPupilTranslationInterpolator.set_fraction
+ROUTE LeftPupilTranslationInterpolator.value_changed TO LeftPupilTransform.translation
+
+ROUTE FaceTimer.fraction_changed TO LeftPupilScaleInterpolator.set_fraction
+ROUTE LeftPupilScaleInterpolator.value_changed TO LeftPupilTransform.scale
+
+
+# Rechte Pupille
+Group {
+	children [
+		DEF RightPupilTransform Transform {
+			rotation 1 -0.5 0 -0.15
+			children [
+				USE Pupil
+			]
+		}
+		DEF RightPupilTranslationInterpolator PositionInterpolator {
+			key [
+				0
+				0.4
+				0.6
+				1
+			]
+			keyValue [
+				0.32 0.2 2.0,
+				0.32 0.2 2.1,
+				0.32 0.2 2.1,
+				0.32 0.2 2.0
+			]
+		}
+		DEF RightPupilScaleInterpolator PositionInterpolator {
+			key [
+				0
+				0.4
+				0.6
+				1
+			]
+			keyValue [
+				0.1 0.2 0.02,
+				0.05 0.05 0.02,
+				0.05 0.05 0.02,
+				0.1 0.2 0.02
+			]
+		}
+	]
+}
+
+ROUTE FaceTimer.fraction_changed TO RightPupilTranslationInterpolator.set_fraction
+ROUTE RightPupilTranslationInterpolator.value_changed TO RightPupilTransform.translation
+
+ROUTE FaceTimer.fraction_changed TO RightPupilScaleInterpolator.set_fraction
+ROUTE RightPupilScaleInterpolator.value_changed TO RightPupilTransform.scale
+
+
+# Zähne
+Group {
+	children [
+		DEF UpperTeeth Transform {
+			children [
+				Inline { url "parts/upperteeth.wrl" }
+			]
+		}
+		DEF UpperTeethTranslationInterpolator PositionInterpolator {
+			key [
+				0
+				0.4
+				0.45
+				0.5
+				0.55
+				0.6
+				1
+			]
+			keyValue [
+				0 0 -0.2,
+				0 0 0,
+				0 -0.05 0,
+				0 0 0,
+				0 -0.05 0,
+				0 0 0,
+				0 0 -0.2
+			]
+		}
+	]
+}
+
+ROUTE FaceTimer.fraction_changed TO UpperTeethTranslationInterpolator.set_fraction
+ROUTE UpperTeethTranslationInterpolator.value_changed TO UpperTeeth.translation
+
+
+Group {
+	children [
+		DEF LowerTeeth Transform {
+			children [
+				Inline { url "parts/lowerteeth.wrl" }
+			]
+		}
+		DEF LowerTeethTranslationInterpolator PositionInterpolator {
+			key [
+				0
+				0.4
+				0.45
+				0.5
+				0.55
+				0.6
+				1
+			]
+			keyValue [
+				0 0 -0.2,
+				0 0 0,
+				0 0.05 0,
+				0 0 0,
+				0 0.05 0,
+				0 0 0,
+				0 0 -0.2
+			]
+		}
+	]
+}
+
+ROUTE FaceTimer.fraction_changed TO LowerTeethTranslationInterpolator.set_fraction
+ROUTE LowerTeethTranslationInterpolator.value_changed TO LowerTeeth.translation
+
+
+# vim:noexpandtab

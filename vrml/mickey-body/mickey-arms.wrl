@@ -1,0 +1,152 @@
+#VRML V2.0 utf8
+# Simon Krämer 25871
+# Pippijn van Steenhoven 25878
+
+# Arme
+DEF Arm Group {
+	children [
+		# Oberarm
+		Transform {
+			rotation 0 0 1 1
+			translation -1 -2 0
+			scale 1 1 1
+			children [
+				Shape {
+					appearance Appearance {
+						material Material {
+							diffuseColor 0 0 0
+							emissiveColor 0 0 0
+						}
+					}
+					geometry Cylinder {
+						radius 0.2
+						height 2
+					}
+				}
+			]
+		}
+		# Unterarm
+		Transform {
+			rotation 0 0 1 1
+			translation -2.65 -0.95 0
+			scale 1 1 1
+			children [
+				Shape {
+					appearance Appearance {
+						material Material {
+							diffuseColor 0 0 0
+							emissiveColor 0 0 0
+						}
+					}
+					geometry Cylinder {
+						radius 0.2
+						height 2
+					}
+				}
+			]
+		}
+		# Handfläche
+		Transform {
+			rotation 0 0 1 1
+			translation -3.7 -0.2 0
+			scale 1 0.7 0.4
+			children [
+				Shape {
+					appearance Appearance {
+						material Material {
+							diffuseColor 1 1 1
+							emissiveColor 0.1 0.1 0.1
+						}
+					}
+					geometry Sphere {
+						radius 0.9
+					}
+				}
+			]
+		}
+		# Handschuhring
+		Transform {
+			rotation 0 0 1 1
+			translation -3.23 -0.57 0
+			scale 1 0.4 1
+			children [
+				Shape {
+					appearance Appearance {
+						material Material {
+							diffuseColor 1 1 1
+							emissiveColor 0.1 0.1 0.1
+						}
+					}
+					geometry Sphere {
+						radius 0.3
+					}
+				}
+			]
+		}	
+		# Daumen
+		Transform {
+			rotation 0 0 1 1.1
+			translation -3.2 0.8 0
+			scale 1 0.5 0.5
+			children [
+				Shape {
+					appearance Appearance {
+						material Material {
+							diffuseColor 1 1 1
+							emissiveColor 0.1 0.1 0.1
+						}
+					}
+					geometry Sphere {
+						radius 0.5
+					}
+				}
+			]
+		}	
+		# Zeigefinger
+		Transform {
+			rotation 0 0 1 2.3
+			translation -4.0 0.6 0
+			scale 1.2 0.5 0.5
+			children [
+				DEF Finger Shape {
+					appearance Appearance {
+						material Material {
+							diffuseColor 1 1 1
+							emissiveColor 0.1 0.1 0.1
+						}
+					}
+					geometry Sphere {
+						radius 0.5
+					}
+				}
+			]
+		}	
+		# Mittelfinger
+		Transform {
+			rotation 0 0 1 2.53
+			translation -4.4 0.3 0
+			scale 1.2 0.5 0.5
+			children [
+				USE Finger
+			]
+		}	
+		# Anderer Finger
+		Transform {
+			rotation 0 0 1 2.6
+			translation -4.4 -0.28 0
+			scale 1.2 0.5 0.5
+			children [
+				USE Finger
+			]
+		}	
+	]
+}
+
+Transform {
+	rotation 0 1 0 3.14
+	translation 0 0 0
+	scale 1 1 1
+	children [
+		USE Arm
+	]
+}

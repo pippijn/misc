@@ -1,0 +1,21 @@
+#VRML V2.0 utf8
+# Simon Krämer 25871
+# Pippijn van Steenhoven 25878
+
+Inline {
+	url "mickey-lod.wrl"
+}
+
+Background {
+	skyColor [ 0.95 0.84 0.26 ]
+	frontUrl "mickey-background2.png"
+}
+
+Viewpoint {
+	position 0 -3 20
+}
+
+Inline { url "mickey-torso.wrl" }
+Inline { url "mickey-legs.wrl" }
+Inline { url "mickey-arms.wrl" }
+Inline { url "mickey-buttons.wrl" }
