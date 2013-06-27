@@ -1,0 +1,64 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+# Configuration
+my $precision = 5; # max digits after '.'
+my $program = $ARGV[0];
+my $loops = $ARGV[1];
+my $shell = "sh";
+
+sub usage {
+   return "Usage: bench \"<program>\" <loops>\n"
+         ."Quotes around program are required if program contains spaces\n";
+}
+
+$ARGV[0] && $ARGV[1] or die usage;
+chomp ($shell = `which $shell`) or die "Error: No usable shell\n";
+
+my ($avgreal, $avguser, $avgsys) = (0, 0, 0);
+
+for (1..$loops) {
+   my @out = split /\n/, `$shell -c 'time $program' 2&>/dev/stdout`;
+   my ($real, $user, $sys);
+
+   for (my $i = 0; $i < scalar @out; $i++) {
+      if ($out[$i] =~ /^real\s+[0-9]+m[0-9][0-9]?\.[0-9][0-9][0-9]s$/) {
+         (undef, $real) = split /\s+/, $out[$i];
+         my ($minutes, $seconds) = split /m/, $real;
+         $seconds =~ s/s//;
+         $avgreal += $minutes * 60 + $seconds;
+      }
+   }
+
+   for (my $i = 0; $i < scalar @out; $i++) {
+      if ($out[$i] =~ /^user\s+[0-9]+m[0-9][0-9]?\.[0-9][0-9][0-9]s$/) {
+         (undef, $user) = split /\s+/, $out[$i];
+         my ($minutes, $seconds) = split /m/, $user;
+         $seconds =~ s/s//;
+         $avguser += $minutes * 60 + $seconds;
+      }
+   }
+
+   for (my $i = 0; $i < scalar @out; $i++) {
+      if ($out[$i] =~ /^sys\s+[0-9]+m[0-9][0-9]?\.[0-9][0-9][0-9]s$/) {
+         (undef, $sys) = split /\s+/, $out[$i];
+         my ($minutes, $seconds) = split /m/, $sys;
+         $seconds =~ s/s//;
+         $avgsys += $minutes * 60 + $seconds;
+      }
+   }
+}
+
+$avgreal /= $loops;
+$avguser /= $loops;
+$avgsys  /= $loops;
+
+$avgreal = int ($avgreal * 10**$precision) / 10**$precision;
+$avguser = int ($avguser * 10**$precision) / 10**$precision;
+$avgsys  = int ($avgsys  * 10**$precision) / 10**$precision;
+
+print "Average real time: $avgreal seconds\n";
+print "Average user time: $avguser seconds\n";
+print "Average sys  time: $avgsys seconds\n";

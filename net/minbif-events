@@ -1,0 +1,73 @@
+#!/usr/bin/env perl
+
+# Singleton script
+use Fcntl ':flock';
+open my $self, '<', $0 or die "Couldn't open self: $!";
+flock $self, LOCK_EX | LOCK_NB or die "This script is already running";
+
+# Actual script starts here
+use common::sense;
+use AnyEvent;
+use AnyEvent::IRC::Connection;
+
+my $config = do "/home/pippijn/code/net/minbif.pm";
+
+my $c = AnyEvent->condvar;
+my $t;
+
+my $con = new AnyEvent::IRC::Connection;
+
+$con->connect ($config->{host}, $config->{port});
+
+$con->reg_cb (
+   connect => sub {
+      my ($con) = @_;
+      say "%%% logging in";
+      $con->send_msg (PASS => $config->{pass});
+      $con->send_msg (NICK => $config->{user});
+      $con->send_msg (USER => $config->{user}, '*', '0', $config->{user});
+   },
+
+   disconnect => sub {
+      my ($con) = @_;
+
+      say "%%% disconnected";
+
+      $t = AnyEvent->timer (after => 120, cb => sub { $con->connect ($config->{host}, $config->{port}) });
+   },
+
+   irc_001 => sub {
+      say "%%% waiting for messages";
+   },
+
+   irc_privmsg => sub {
+      my ($con, $msg) = @_;
+
+      # My own messages
+      for (@{ $config->{ignore} }) {
+         return if $msg->{prefix} eq $_;
+      }
+
+      my ($target, $text) = @{ $msg->{params} };
+
+      # Channel messages
+      return if $target =~ /^[&#]/;
+
+      # Clean up message text
+      $text =~ s/\002+//g;
+      $text =~ s/\003+//g;
+
+      # Empty messages
+      return if $text =~ /^\s+$/;
+
+      # Extract nick
+      my ($nick) = $msg->{prefix} =~ /^([^!]+)/;
+
+      say "%%% got message";
+      system "notify-send", $nick, $text;
+      system "paplay $config->{wave}";
+   },
+);
+
+say "%%% connecting";
+$c->wait;

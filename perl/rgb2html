@@ -1,0 +1,52 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+my @rgb_txt = do { open my $fh, "</usr/share/X11/rgb.txt" or die "/usr/share/X11/rgb.txt: $!"; <$fh> };
+
+print <<HEADER;
+<html>
+   <head>
+      <title>X11 RGB Colour Table</title>
+   </head>
+   <body style="background:black;">
+      <table border="1" style="background:white;color:black;width:100%;">
+         <tr style="color:yellow;background:blue;">
+            <th style="width:80px;">Red</th>
+            <th style="width:80px;">Green</th>
+            <th style="width:80px;">Blue</th>
+            <th style="width:100px;">HEX Code</th>
+            <th>Name</th>
+            <th style="width:50%;">Preview</th>
+         </tr>
+HEADER
+
+for my $line (@rgb_txt) {
+   next if $line =~ /^!/; # comments
+   $line =~ s/^\s+//; # leading spaces
+
+   print "         <tr>\n";
+
+   my ($red, $green, $blue, $name) = split /\s+/, $line, 4;
+   chomp $name;
+   my $hexred = sprintf $red < 16 ? "0%x" : "%x", $red;
+   my $hexgreen = sprintf $green < 16 ? "0%x" : "%x", $green;
+   my $hexblue = sprintf $blue < 16 ? "0%x" : "%x", $blue;
+   my $hexcode = uc "$hexred$hexgreen$hexblue";
+
+   print "            <td>$red</td>\n";
+   print "            <td>$green</td>\n";
+   print "            <td>$blue</td>\n";
+   print "            <td>$hexcode</td>\n";
+   print "            <td>$name</td>\n";
+   printf "            <td bgcolor=\"#$hexcode\" width=\"200\"></td>\n";
+
+   print "         </tr>\n";
+}
+
+print <<FOOTER;
+      </table>
+   </body>
+</html>
+FOOTER

@@ -1,0 +1,25 @@
+#!/usr/bin/env perl
+
+use common::sense;
+use AnyEvent::Handle;
+use AnyEvent::Socket;
+
+my $cv = AnyEvent->condvar;
+
+my $server = tcp_server undef, 9192, sub {
+   my ($fh, $host, $port) = @_;
+
+   say "incoming connection from $host:$port";
+
+   my $handle; $handle = new AnyEvent::Handle (
+      fh => $fh,
+      on_read => sub {
+         my ($self) = @_;
+
+         say "$handle: $self";
+         undef $handle
+      },
+   );
+};
+
+$cv->recv

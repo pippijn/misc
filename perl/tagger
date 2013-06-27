@@ -1,0 +1,120 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+no warnings 'uninitialized';
+use utf8;
+
+die "You don't have id3v2(1) installed.\n"
+   unless `which id3v2`;
+
+die "Usage: tagger <mp3file> [<mp3file> ...]\n"
+   unless @ARGV;
+
+for (@ARGV) {
+   utf8::decode $_;
+   my @info = split /\n/, `id3v2 -l \Q$_\U`;
+
+   # id3 tag info
+   my ($title, $artist, $album, $year, $genre_name, $genre, $comment, $track);
+   my ($tit2, $tpe1, $talb, $tyer, $trck, $tcon, $tcon_txt);
+   for (@info) {
+      # id3v1
+      if ($_ =~ /^Title/) {
+         ($title, $artist) = $_ =~ /^Title  : (.+)\s+Artist: (.+)/;
+      } elsif ($_ =~ /^Album/) {
+         ($album, $year, $genre_name, $genre) = $_ =~ /^Album  : (.+)\s+Year: (\d+), Genre: (.+) \((\d+)\)/;
+      } elsif ($_ =~ /^Comment/) {
+         ($comment, $track) = $_ =~ /^Comment: (.+)\s+Track: (\d+)/;
+      }
+
+      # id3v2
+      elsif ($_ =~ /^TIT2/) {
+         ($tit2)            = $_ =~ /^TIT2 \(Title\/songname\/content description\): (.+)/;
+      } elsif ($_ =~ /^TPE1/) {
+         ($tpe1)            = $_ =~ /^TPE1 \(Lead performer\(s\)\/Soloist\(s\)\): (.+)/;
+      } elsif ($_ =~ /^TALB/) {
+         ($talb)            = $_ =~ /^TALB \(Album\/Movie\/Show title\): (.+)/;
+      } elsif ($_ =~ /^TYER/) {
+         ($tyer)            = $_ =~ /^TYER \(Year\): (\d+)/;
+      } elsif ($_ =~ /^TRCK/) {
+         ($trck)            = $_ =~ /^TRCK \(Track number\/Position in set\): (\d+)/;
+      } elsif ($_ =~ /^TCON/) {
+         ($tcon_txt, $tcon) = $_ =~ /^TCON \(Content type\): (.+) \((\d+)\)/;
+      }
+   }
+
+   $title  =~ s/\s+$//;
+   $artist =~ s/\s+$//;
+   $album  =~ s/\s+$//;
+   
+   sub not_same {
+      my ($tag, $id1, $id2) = @_;
+      print "Unequal $tag:\nid3v1: '$id1'\nid3v2: '$id2'\nWhich one to use? (1,2) ";
+      my $answer = <STDIN>;
+      $answer == 1
+         ? $id1
+         : $id2
+   }
+   
+   # Check for differences in v1 and v2 tags
+   $title  = $title  eq $tit2 ? $tit2 : not_same "Title",  $title,  $tit2;
+   $artist = $artist eq $tpe1 ? $tpe1 : not_same "Artist", $artist, $tpe1;
+   $album  = $album  eq $talb ? $talb : not_same "Album",  $album,  $talb;
+   $year   = $year   eq $tyer ? $tyer : not_same "Year",   $year,   $tyer;
+   $track  = $track  eq $trck ? $trck : not_same "Track",  $track,  $trck;
+   $genre  = $genre  eq $tcon ? $tcon : not_same "Genre",  $genre,  $tcon;
+
+   # Create file with id3tag info
+   my $tmpfile = "/tmp/tagger-" . int rand 65536;
+   my $taginfo = "id3 tag information for $_\n"
+                ."Title: $title\n"
+                ."Artist: $artist\n"
+                ."Album: $album\n"
+                ."Year: $year\n"
+                ."Track: $track\n"
+                ."Genre: $genre ($genre_name)\n"
+                ."Comment: $comment\n";
+   utf8::encode $taginfo;
+   open TMP, ">$tmpfile";
+   print TMP $taginfo;
+   close TMP;
+   
+   # Lets user edit tag info
+   system $ENV{EDITOR}, $tmpfile;
+
+   # Re-parse changes
+   @info = do { open my $fh, "<$tmpfile" or die "$tmpfile: $!\n"; <$fh> };
+
+   utf8::decode $_
+      for @info;
+
+   # Users should not change line order with this being hard coded
+   ($title)   = $info[1] =~ /^Title: (.+)/;
+   ($artist)  = $info[2] =~ /^Artist: (.+)/;
+   ($album)   = $info[3] =~ /^Album: (.+)/;
+   ($year)    = $info[4] =~ /^Year: (.+)/;
+   ($track)   = $info[5] =~ /^Track: (.+)/;
+   ($genre)   = $info[6] =~ /^Genre: (\d+)/;
+   ($comment) = $info[7] =~ /^Comment: (.+)/;
+
+   utf8::decode $title;
+   utf8::decode $artist;
+   utf8::decode $album;
+   utf8::decode $year;
+   utf8::decode $track;
+   utf8::decode $genre;
+   utf8::decode $comment;
+
+   system "id3v2",
+      "-a", $artist,
+      "-A", $album,
+      "-t", $title,
+      "-c", $comment,
+      "-g", $genre,
+      "-y", $year,
+      "-T", $track,
+      $_;
+   
+   unlink $tmpfile;
+}

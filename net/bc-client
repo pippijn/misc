@@ -1,0 +1,38 @@
+#!/usr/bin/env perl
+
+use Carp 'verbose';
+use common::sense;
+use AnyEvent::Handle;
+use AnyEvent::Socket;
+
+my $cv = AnyEvent->condvar;
+my $handle;
+
+sub reconnect { tcp_connect "localhost", 9192, \&handle }
+
+sub handle {
+   my ($fh) = @_ or do {
+      say "waiting...";
+      sleep 10;
+      return reconnect
+   };
+
+   $handle = new AnyEvent::Handle (
+      fh => $fh,
+      on_read => sub {
+         shift->unshift_read (chunk => 4, sub {
+				my $len = unpack "N", $_[1];
+
+            shift->unshift_read (chunk => $len, sub {
+               my $command = $_[1];
+
+               say "cmd: $command";
+            });
+         });
+      },
+   );
+}
+
+reconnect;
+
+$cv->recv
