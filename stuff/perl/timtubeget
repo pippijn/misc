@@ -1,0 +1,51 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use utf8;
+
+use LWP::Simple;
+use YAML;
+use YAML::Syck;
+use YAML::Dumper;
+
+my $listing = get("file:///home/pippijn/code/perl/index.html")
+   or die "file:///home/pippijn/code/perl/index.html: $!\n";
+#my $listing = get("http://80.249.115.46/files/flash_clips/")
+#   or die "http://80.249.115.46/files/flash_clips/: $!\n";
+
+my @listing = split /\n/, $listing;
+@listing = splice @listing, 8, scalar @listing - 10;
+
+my $mapping = LoadFile("$ENV{HOME}/media/videos/timtube/mapping.yml");
+
+for (@listing) {
+   $_ =~ s/^<img.+"(\d+)\.flv".+/$1/;
+
+   print "$_ [HIT]\n" && next
+      if $mapping->{$_};
+   my $content = get("http://www.timtube.com/index.php?do=show&id=$_")
+      or die "Video #$_: $!\n";
+
+   my ($title) = $content =~ /<p>Video: (.+)<\/p>/;
+   #system "/usr/bin/wget -c http://80.249.115.46/files/flash_clips/$_.flv -O $ENV{HOME}/media/videos/timtube/$_.flv";
+
+   $title = "<none>"
+      unless $title;
+
+   print "$_: $title\n";
+   $mapping->{$_} = $title;
+
+   &dump_yaml
+      unless $_ % 50;
+}
+
+sub dump_yaml {
+   my $dumper = new YAML::Dumper;
+   $dumper->indent_width(3);
+   
+   open MAP, ">$ENV{HOME}/media/videos/timtube/mapping.yml";
+   print MAP $dumper->dump($mapping);
+   close MAP;
+}
+

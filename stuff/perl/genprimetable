@@ -1,0 +1,136 @@
+#!/usr/bin/perl -w
+# Prime table generator for Rona hash tables.
+
+#
+# This program generates a table of primes suitable for Rona hash
+# table expansion.
+# Primes are located approximately along a non linear function whose
+# purpose is to space primes in a variable fashion (first primes are
+# more spaced, say each one is 2.5 times the previous one, and big
+# primes are less spaced, so to save space in hash table expansion)
+#
+
+use strict;
+use Carp;
+
+my $emit_header = 1;
+
+# Approx. range for the prime table
+# (10^9 should be a safe bet for the next 2 years at least, I hope :-)
+my ($lo, $hi) = (0, 1000000000);
+#my ($lo, $hi) = (0, 100000);
+
+# In the stream (P[n]) of accepted primes, the condition
+# P[i] / P[i-1] >= gf(P[i]) is required to hold.
+#
+# gf(n) is a function of the form:
+#
+#
+# gf(x) = beta + eta * exp(gfl(x))
+#
+# gfl(x) = delta * x + q
+#
+#         gfl(p2) - gfl(p1)           p2 * gfl(p1) - p1 * gfl(p2)
+# delta = -----------------   ;   q = ---------------------------
+#              p2 - p1                          p2 - p1
+#
+# gf(0) = beta + eta * exp(q)
+#
+# gf(1) = beta + eta * exp(delta + q)
+#
+
+my ($beta, $eta)    = (1.3, 1.0 / 16.0);
+my ($p1,    $p2)    = (1.0, 60000.0);
+my ($gf_p1, $gf_p2) = (3.0, 1.2);
+
+# External program to generate primes
+my ($primestream) = ("./sieve");
+
+# ========================================================================
+
+my ($nprimes) = (0);
+
+my ($delta, $q);
+my ($gf, $gfl);
+
+$delta = ($gf_p2 - $gf_p1) / ($p2 - $p1);
+$q     = ($p2 * $gf_p1 - $p1 * $gf_p2) / ($p2 - $p1);
+
+#print "DELTA: $delta   Q: $q\n";
+
+my ($prevprime, $prime);
+my ($prevdiff, $prevratio);
+
+$prevprime = 1;
+
+if ($lo < 3) {
+    $lo = 3;
+}
+
+select(STDOUT); $| = 1;
+open(PS, "$primestream $lo $hi |") || die "can't run '$primestream' command: $!";
+if ($emit_header) {
+    emitHead();
+}
+my $firstprint = 1;
+my $comment;
+
+NEXTPRIME: while (<PS>) {
+    chomp;
+    $prime = $_;
+    goto NEXTPRIME if ($prime < $lo);
+    last if ($prime > $hi);
+
+    $gfl = $delta * $prime + $q;
+    $gf  = $beta + $eta * exp($gfl);
+
+    goto NEXTPRIME if ($prime / $prevprime < $gf);
+
+    $prevdiff  = $prime - $prevprime;
+    $prevratio = $prime / $prevprime;
+
+    #print "$gf  $prime\n";
+    if ($emit_header) {
+	if (not $firstprint) {
+	    print sprintf(",      %s", $comment);
+	    print "\n";
+	}
+	print sprintf("\t%10s", $prime);
+    } else {
+	print "$prime\n";
+    }
+    $comment = sprintf("/* %10s %1.4f */", $prevdiff, $prevratio);
+    $nprimes++;
+
+    $firstprint = 0;
+    $prevprime = $prime;
+}
+print sprintf("       %s", $comment);
+close(PS);
+if ($emit_header) {
+    emitTail();
+}
+
+sub emitHead {
+    print <<"UntilTheEndOfTheString";
+/**
+ * Prime number table. Used for Rona hash table expansion.
+ */
+
+#ifndef __PRIMES_H
+#define __PRIMES_H
+
+static const long primes[] = {
+UntilTheEndOfTheString
+}
+
+sub emitTail {
+    print <<"UntilTheEndOfTheString";
+
+};
+
+static int nprimes = $nprimes;
+
+#endif /* __PRIMES_H */
+UntilTheEndOfTheString
+}

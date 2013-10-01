@@ -1,0 +1,13 @@
+lib_LTLIBRARIES += libgc_st.la
+
+libgc_st_la_SRCDIR = $(srcdir)/src/gc/serial
+libgc_st_la_SOURCES =				\
+	$(libgc_st_la_SRCDIR)/Collector.cpp	\
+	$(libgc_st_la_SRCDIR)/Pouch.cpp		\
+	$(libgc_st_la_SRCDIR)/Reclamation.cpp	\
+	$(libgc_st_la_SRCDIR)/hnxGCAPI.cpp
+
+libgc_st_la_CPPFLAGS = $(AM_CPPFLAGS) -DHNXGC_CONFIG_NODLL -DHNX_SINGLE_THREADED
+libgc_st_la_LDFLAGS = $(STRICT_LDFLAGS)
+
+# vim:ft=automake

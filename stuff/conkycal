@@ -1,0 +1,9 @@
+#!/usr/bin/env perl
+
+use common::sense;
+
+use Cal::DAV;
+
+my $cal = new Cal::DAV user => 'pippijn', pass => '1RcsQoiPjER', url => 'http://pippijn:1RcsQoiPjER@calendar.xinutec.org/caldav.php/pippijn/home';
+
+print $cal->as_string

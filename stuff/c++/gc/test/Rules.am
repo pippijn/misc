@@ -1,0 +1,11 @@
+noinst_PROGRAMS += gctest
+
+gctest_SRCDIR = $(srcdir)/src/gc/test
+gctest_SOURCES =				\
+	$(gctest_SRCDIR)/TestFeatures.cpp
+
+gctest_CPPFLAGS = $(AM_CPPFLAGS) -DHNX_SINGLE_THREADED
+gctest_LDFLAGS = $(STRICT_LDFLAGS)
+gctest_LDADD = libgc_st.la
+
+# vim:ft=automake

@@ -1,0 +1,1 @@
+(write-line "Hallo Welt!")

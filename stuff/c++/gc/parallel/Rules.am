@@ -1,0 +1,15 @@
+lib_LTLIBRARIES += libgc_mt.la
+
+libgc_mt_la_SRCDIR = $(srcdir)/src/gc/parallel
+libgc_mt_la_SOURCES =				\
+	$(libgc_mt_la_SRCDIR)/Collector.cpp	\
+	$(libgc_mt_la_SRCDIR)/Pouch.cpp		\
+	$(libgc_mt_la_SRCDIR)/Reclamation.cpp	\
+	$(libgc_mt_la_SRCDIR)/hnxGCAPI.cpp	\
+	$(libgc_mt_la_SRCDIR)/hnxGMF.cpp
+
+libgc_mt_la_CPPFLAGS = $(AM_CPPFLAGS) -DHNXGC_CONFIG_NODLL -D__SMP__
+libgc_mt_la_LDFLAGS = $(STRICT_LDFLAGS)
+libgc_mt_la_LIBADD = -lpthread
+
+# vim:ft=automake

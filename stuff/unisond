@@ -1,0 +1,22 @@
+#!/usr/bin/env perl
+
+use common::sense;
+
+use Data::Dumper;
+#use File::ChangeNotify;
+use File::Find;
+
+sub parse_prf {
+   open my $fh, '<', "$ENV{HOME}/.unison/$_[0].prf"
+      or die $!;
+   my @ignore;
+   while (<$fh>) {
+      /^ignore = Path \{(.+)\}$/ and push @ignore, $1;
+   }
+   \@ignore
+}
+
+my $ignore = parse_prf "default";
+print Dumper $ignore;
+
+#say for <$ENV{HOME}/.* $ENV{HOME}/*>;

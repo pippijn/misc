@@ -1,0 +1,18 @@
+#!/usr/bin/env perl
+
+use common::sense;
+use DBI;
+
+my $dbh = DBI->connect ('DBI:mysql:lolo', 'lolo', 'CZYAiUjFDFI82U4Jgn7I')
+   or die "Could not connect to database: $DBI::errstr";
+$dbh->do ("SET NAMES UTF8");
+
+my $result = $dbh->selectall_arrayref ('SELECT chinese, pinyin, english, dutch, memo FROM dict ORDER BY num');
+
+unshift @$result, ["Chinese", "Pinyin", "English", "Dutch", "Memo"];
+for my $row (@$result) {
+   for my $column (@$row) {
+      printf "| %-10s", $column;
+   }
+   print "\n";
+}
