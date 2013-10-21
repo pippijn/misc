@@ -10,7 +10,7 @@ use common::sense;
 use AnyEvent;
 use AnyEvent::IRC::Connection;
 
-my $config = do "/home/pippijn/code/net/minbif.pm";
+my $config = require "/home/pippijn/code/git/misc/net/minbif.pm";
 
 my $c = AnyEvent->condvar;
 my $t;
