@@ -1,0 +1,5 @@
+<*.ml>: package(deriving-ocsigen.syntax), syntax(camlp4o)
+<*.native>: package(deriving-ocsigen)
+
+true: annot
+true: use_menhir
