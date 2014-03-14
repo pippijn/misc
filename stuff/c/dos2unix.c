@@ -38,12 +38,14 @@ main (int argc, char **argv)
 
       // copy loop
       char *src_it;
-      if (src_it = memchr (ptr, '\r', file_stat.st_size))
+      if ((src_it = memchr (ptr, '\r', file_stat.st_size)))
         {
           char *dst_it = src_it;
 
           while (src_it != end)
             {
+#define USE_LIBC 1
+#if USE_LIBC
               char *eol = memchr (src_it, '\r', end - src_it);
               if (eol != NULL)
                 {
@@ -60,6 +62,11 @@ main (int argc, char **argv)
                   dst_it += length;
                   src_it = end;
                 }
+#else
+              if (*src_it != '\r')
+                *dst_it++ = *src_it;
+              src_it++;
+#endif
             }
           // end of copy loop
 
