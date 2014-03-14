@@ -37,39 +37,39 @@ main (int argc, char **argv)
       char *end = ptr + file_stat.st_size;
 
       // copy loop
-      char *src_it = memchr (ptr, '\r', file_stat.st_size);
-      if (!src_it)
-        src_it = end;
-      char *dst_it = src_it;
-
-      while (src_it != end)
+      char *src_it;
+      if (src_it = memchr (ptr, '\r', file_stat.st_size))
         {
-          char *eol = memchr (src_it, '\r', end - src_it);
-          if (eol != NULL)
+          char *dst_it = src_it;
+
+          while (src_it != end)
             {
-              size_t length = eol - src_it - 1;
-              memmove (dst_it, src_it, length);
-              dst_it += length;
-              src_it = eol + 1;
+              char *eol = memchr (src_it, '\r', end - src_it);
+              if (eol != NULL)
+                {
+                  size_t length = eol - src_it - 1;
+                  memmove (dst_it, src_it, length);
+                  dst_it += length;
+                  src_it = eol + 1;
+                }
+              else
+                {
+                  // no more \r in the file
+                  size_t length = end - src_it;
+                  memmove (dst_it, src_it, length);
+                  dst_it += length;
+                  src_it = end;
+                }
             }
-          else
+          // end of copy loop
+
+          // truncate
+          if (ftruncate (fd, dst_it - ptr) == -1)
             {
-              // no more \r in the file
-              size_t length = end - src_it;
-              memmove (dst_it, src_it, length);
-              dst_it += length;
-              src_it = end;
+              perror ("ftruncate");
+              return 0;
             }
         }
-      // end of copy loop
-
-      // truncate if necessary
-      if (dst_it != src_it)
-        if (ftruncate (fd, dst_it - ptr) == -1)
-          {
-            perror ("ftruncate");
-            return 0;
-          }
 
       if (munmap (ptr, file_stat.st_size) == -1)
         {
