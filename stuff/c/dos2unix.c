@@ -13,7 +13,8 @@ main (int argc, char **argv)
   while (--argc)
     {
       char const *file = *++argv;
-      int fd = open (file, O_RDWR);
+      int read_fd = open (file, O_RDONLY);
+      int write_fd = open (file, O_WRONLY);
 
       off_t read_pos = 0;
       off_t write_pos = 0;
@@ -21,7 +22,7 @@ main (int argc, char **argv)
       // while there are more bytes to read
       while (1)
         {
-          ssize_t const bytes = read (fd, src, sizeof src);
+          ssize_t const bytes = read (read_fd, src, sizeof src);
 
           ssize_t src_pos, dst_pos = 0;
           // advance read position by number of bytes read
@@ -31,21 +32,22 @@ main (int argc, char **argv)
           for (src_pos = 0; src_pos < bytes; src_pos++)
             if (src[src_pos] != '\r')
               dst[dst_pos++] = src[src_pos];
-          // seek back to the beginning of the current block
-          lseek (fd, write_pos, SEEK_SET);
-          // write back to file
-          write_pos += write (fd, dst, dst_pos);
-          // seek to new read position
-          lseek (fd, read_pos, SEEK_SET);
+          if (dst_pos == src_pos)
+            // no change
+            write_pos += dst_pos;
+          else
+            // write back to file
+            write_pos += write (write_fd, dst, dst_pos);
 
           if (bytes != sizeof src)
             break;
         }
 
-      if (ftruncate (fd, write_pos) == -1)
-        perror ("ftruncate");
+      if (read_pos != write_pos)
+        if (ftruncate (write_fd, write_pos) == -1)
+          perror ("ftruncate");
 
-      close (fd);
+      close (read_fd);
     }
   return 0;
 }
