@@ -44,7 +44,7 @@ main (int argc, char **argv)
 
           while (src_it != end)
             {
-#define USE_LIBC 1
+#define USE_LIBC 0
 #if USE_LIBC
               char *eol = memchr (src_it, '\r', end - src_it);
               if (eol != NULL)
