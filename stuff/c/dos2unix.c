@@ -1,53 +1,87 @@
+#define _GNU_SOURCE 1
 #include <fcntl.h>
 #include <stdio.h>
+#include <string.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <unistd.h>
 
 int
 main (int argc, char **argv)
 {
-  char src[1024 * 1024];
-  char dst[1024 * 1024];
-
   while (--argc)
     {
       char const *file = *++argv;
-      int read_fd = open (file, O_RDONLY);
-      int write_fd = open (file, O_WRONLY);
 
-      off_t read_pos = 0;
-      off_t write_pos = 0;
-
-      // while there are more bytes to read
-      while (1)
+      int fd = open (file, O_RDWR);
+      if (fd == -1)
         {
-          ssize_t const bytes = read (read_fd, src, sizeof src);
-
-          ssize_t src_pos, dst_pos = 0;
-          // advance read position by number of bytes read
-          read_pos += bytes;
-
-          // go through the whole buffer
-          for (src_pos = 0; src_pos < bytes; src_pos++)
-            if (src[src_pos] != '\r')
-              dst[dst_pos++] = src[src_pos];
-          if (dst_pos == src_pos)
-            // no change
-            write_pos += dst_pos;
-          else
-            // write back to file
-            write_pos += write (write_fd, dst, dst_pos);
-
-          if (bytes != sizeof src)
-            break;
+          perror ("open");
+          return 0;
         }
 
-      if (read_pos != write_pos)
-        if (ftruncate (write_fd, write_pos) == -1)
-          perror ("ftruncate");
+      struct stat file_stat;
+      if (fstat (fd, &file_stat) == -1)
+        {
+          perror ("fstat");
+          return 0;
+        }
 
-      close (read_fd);
+      char *const ptr = mmap (0, file_stat.st_size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE, fd, 0);
+      if (ptr == (void *)-1)
+        {
+          perror ("mmap");
+          return 0;
+        }
+
+      char *end = ptr + file_stat.st_size;
+
+      // copy loop
+      char *src_it = memchr (ptr, '\r', file_stat.st_size);
+      if (!src_it)
+        src_it = end;
+      char *dst_it = src_it;
+
+      while (src_it != end)
+        {
+          char *eol = memchr (src_it, '\r', end - src_it);
+          if (eol != NULL)
+            {
+              size_t length = eol - src_it - 1;
+              memmove (dst_it, src_it, length);
+              dst_it += length;
+              src_it = eol + 1;
+            }
+          else
+            {
+              // no more \r in the file
+              size_t length = end - src_it;
+              memmove (dst_it, src_it, length);
+              dst_it += length;
+              src_it = end;
+            }
+        }
+      // end of copy loop
+
+      // truncate if necessary
+      if (dst_it != src_it)
+        if (ftruncate (fd, dst_it - ptr) == -1)
+          {
+            perror ("ftruncate");
+            return 0;
+          }
+
+      if (munmap (ptr, file_stat.st_size) == -1)
+        {
+          perror ("munmap");
+          return 0;
+        }
+
+      if (close (fd) == -1)
+        {
+          perror ("close");
+          return 0;
+        }
     }
   return 0;
 }
